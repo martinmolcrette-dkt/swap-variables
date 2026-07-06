@@ -1,0 +1,21 @@
+{
+	"documentAccess": "dynamic-page",
+	"enablePrivatePluginApi": true,
+	"api": "1.0.0",
+	"networkAccess": {
+		"allowedDomains": [
+			"none"
+		]
+	},
+	"permissions": [
+		"teamlibrary"
+	],
+	"id": "com.decathlon.variable-linter",
+	"name": "Variable Linter",
+	"main": "src/main/main.ts",
+	"ui": "src/ui/ui.tsx",
+	"editorType": [
+		"figma",
+		"figjam"
+	]
+}

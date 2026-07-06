@@ -1,0 +1,119 @@
+.linter-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--spacer-2);
+}
+
+.plugin-shell {
+	display: flex;
+	flex-direction: column;
+	min-height: 100%;
+}
+
+.plugin-content {
+	flex: 1;
+	min-height: 0;
+}
+
+.linter-main-tabs {
+	display: flex;
+	gap: 0;
+	margin: 0 calc(-1 * var(--space-medium, 16px));
+	padding: 0 var(--space-medium, 16px);
+	border-bottom: 1px solid var(--figma-color-border);
+}
+
+.linter-main-tab {
+	flex: 1;
+	padding: var(--space-8) var(--space-4);
+	border: none;
+	border-bottom: 2px solid transparent;
+	margin-bottom: -1px;
+	background: transparent;
+	color: var(--figma-color-text-secondary);
+	font: inherit;
+	font-weight: var(--font-weight-regular);
+	line-height: var(--line-height-16);
+	text-align: center;
+	cursor: pointer;
+}
+
+.linter-main-tab:hover {
+	color: var(--figma-color-text);
+}
+
+.linter-main-tab--active {
+	color: var(--figma-color-text);
+	font-weight: var(--font-weight-bold);
+	border-bottom-color: var(--figma-color-bg-brand);
+}
+
+.linter-center {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: var(--spacer-4) 0;
+}
+
+.linter-item {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	width: 100%;
+	padding: var(--spacer-2);
+	border-radius: var(--radius-medium);
+	background: transparent;
+	text-align: left;
+	cursor: pointer;
+}
+
+.linter-item:hover {
+	background: var(--figma-color-bg-hover);
+}
+
+.linter-item:active {
+	background: var(--figma-color-bg-pressed);
+}
+
+.linter-item__main,
+.linter-item__meta {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.linter-item strong {
+	font-weight: 600;
+}
+
+.linter-tabs {
+	max-height: 280px;
+	overflow-y: auto;
+}
+
+.linter-prompt textarea {
+	font-family: var(--font-family-code, monospace);
+	font-size: 11px;
+	line-height: 1.4;
+	cursor: text;
+	user-select: text;
+	background-color: var(--figma-color-bg) !important;
+	border: 1px solid var(--figma-color-border) !important;
+}
+
+.linter-status--ok {
+	color: var(--figma-color-text-success);
+}
+
+.linter-status--warn {
+	color: var(--figma-color-text-warning);
+}
+
+.linter-swap-link {
+	word-break: break-all;
+}
+
+.linter-swap-link a {
+	color: var(--figma-color-text-brand);
+}

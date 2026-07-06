@@ -1,0 +1,71 @@
+export type VariableResolvedDataType = 'BOOLEAN' | 'COLOR' | 'FLOAT' | 'STRING';
+
+export type VariableCategory =
+	| 'color'
+	| 'spacing'
+	| 'sizing'
+	| 'radius'
+	| 'typography'
+	| 'other';
+
+export type ViolationType = 'local' | 'foreign';
+
+export type LintOccurrence = {
+	nodeId: string;
+	nodeName: string;
+	property: string;
+	propertyLabel: string;
+};
+
+export type LintIssue = {
+	id: string;
+	variableId: string;
+	variableName: string;
+	variableType: VariableResolvedDataType;
+	category: VariableCategory;
+	violation: ViolationType;
+	libraryName?: string;
+	collectionName?: string;
+	occurrences: LintOccurrence[];
+};
+
+export type ScanResult = {
+	issues: LintIssue[];
+	teamLibraries: string[];
+	selectionCount: number;
+	scannedNodeCount: number;
+};
+
+export type TempCollectionInfo = {
+	exists: boolean;
+	variableCount: number;
+};
+
+export type PromptState = {
+	createPrompt: string;
+	mapPrompt: string | null;
+	hasFileKey: boolean;
+	tempCollection: TempCollectionInfo;
+};
+
+export type UiToMainMessage =
+	| { type: 'scan' }
+	| { type: 'focus-node'; nodeId: string }
+	| { type: 'rescan' }
+	| { type: 'detach-all' }
+	| { type: 'get-prompt-state' }
+	| { type: 'swap-temp' };
+
+export type MainToUiMessage =
+	| { type: 'scan-result'; result: ScanResult }
+	| { type: 'scan-error'; message: string }
+	| { type: 'detach-result'; detachedCount: number; detachedStyleCount: number; nodeCount: number }
+	| { type: 'prompt-state'; state: PromptState }
+	| {
+			type: 'swap-result';
+			success: boolean;
+			swappedCount: number;
+			skippedCount: number;
+			message: string;
+			errors: string[];
+	  };
