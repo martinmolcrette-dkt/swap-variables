@@ -22,7 +22,7 @@ flowchart TD
 ## Étapes détaillées
 
 ### 1. Création du composant
-Le designer construit le composant dans Figma en utilisant les variables de la librairie **"Vitamin Play - Foundations"** (couleurs, spacing, radius, typographie, etc.).
+Le designer construit le composant dans Figma en utilisant les variables de la librairie **"Vitamin Play - Design Tokens"** (couleurs, spacing, radius, typographie, etc.).
 
 ### 2. Génération du prompt (onglet Agent)
 Une fois le composant terminé :
