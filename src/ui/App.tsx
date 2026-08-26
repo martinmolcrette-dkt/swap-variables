@@ -1,5 +1,5 @@
 import { Container, VerticalSpace } from '@create-figma-plugin/ui';
-import { useCallback, useEffect, useState } from 'preact/hooks';
+import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import {
 	DEFAULT_SWAP_SOURCE_COLLECTION_NAME,
 	getSwapTargetCollectionName,
@@ -43,6 +43,16 @@ export function App() {
 	const [swapMessage, setSwapMessage] = useState<string | null>(null);
 	const [swapSuccess, setSwapSuccess] = useState<boolean | null>(null);
 	const [swapErrors, setSwapErrors] = useState<string[]>([]);
+	const [tokensJson, setTokensJson] = useState('');
+	const [tokensMessage, setTokensMessage] = useState<string | null>(null);
+	const [tokensSuccess, setTokensSuccess] = useState<boolean | null>(null);
+	const [tokensLoading, setTokensLoading] = useState(false);
+	const [tokensImporting, setTokensImporting] = useState(false);
+	const [transferCollectionId, setTransferCollectionId] = useState('');
+	const transferCollectionIdRef = useRef('');
+	const [transferCollectionOptions, setTransferCollectionOptions] = useState<
+		Array<{ value: string; label: string }>
+	>([]);
 	const [swapSourceCollectionName, setSwapSourceCollectionName] = useState(
 		DEFAULT_SWAP_SOURCE_COLLECTION_NAME,
 	);
@@ -99,11 +109,58 @@ export function App() {
 				setSwapMessage(message.message);
 				setSwapSuccess(message.success);
 				setSwapErrors(message.errors);
+				return;
+			}
+
+			if (message.type === 'swap-collection-tokens') {
+				if (message.collectionId !== transferCollectionIdRef.current) {
+					return;
+				}
+
+				setTokensLoading(false);
+				setTokensSuccess(message.success);
+				setTokensMessage(message.message);
+				if (message.success) {
+					setTokensJson(message.tokensJson);
+				}
+				return;
+			}
+
+			if (message.type === 'swap-collection-import-result') {
+				setTokensImporting(false);
+				setTokensSuccess(message.success);
+				setTokensMessage(message.message);
+				return;
+			}
+
+			if (message.type === 'local-variable-collections') {
+				const collectionOptions = message.collections.map((collection) => ({
+					value: collection.id,
+					label: collection.name,
+				}));
+				setTransferCollectionOptions(collectionOptions);
+
+				const initialCollection = collectionOptions[0];
+				if (!initialCollection) {
+					transferCollectionIdRef.current = '';
+					setTransferCollectionId('');
+					setTokensLoading(false);
+					return;
+				}
+
+				transferCollectionIdRef.current = initialCollection.value;
+				setTransferCollectionId(initialCollection.value);
+				setTokensLoading(true);
+				postToMain({
+					type: 'get-swap-collection-tokens',
+					collectionId: initialCollection.value,
+				});
 			}
 		};
 
 		window.addEventListener('message', handleMessage);
 		postToMain({ type: 'scan' });
+		postToMain({ type: 'get-local-variable-collections' });
 
 		return () => window.removeEventListener('message', handleMessage);
 	}, []);
@@ -130,6 +187,27 @@ export function App() {
 			sourceCollectionName: swapSourceCollectionName,
 		});
 	}, [swapSourceCollectionName]);
+
+	const handleImportTokens = useCallback(() => {
+		setTokensImporting(true);
+		setTokensMessage(null);
+		setTokensSuccess(null);
+		postToMain({
+			type: 'import-swap-collection-tokens',
+			targetCollectionId: transferCollectionId,
+			tokensJson,
+		});
+	}, [tokensJson, transferCollectionId]);
+
+	const handleTransferCollectionChange = useCallback((collectionId: string) => {
+		transferCollectionIdRef.current = collectionId;
+		setTransferCollectionId(collectionId);
+		setTokensLoading(true);
+		setTokensMessage(null);
+		setTokensSuccess(null);
+		setTokensJson('');
+		postToMain({ type: 'get-swap-collection-tokens', collectionId });
+	}, []);
 
 	const swapTargetCollectionName = getSwapTargetCollectionName(
 		swapSourceCollectionName,
@@ -185,6 +263,13 @@ export function App() {
 							swapMessage={swapMessage}
 							swapSuccess={swapSuccess}
 							swapErrors={swapErrors}
+							tokensJson={tokensJson}
+							tokensMessage={tokensMessage}
+							tokensSuccess={tokensSuccess}
+							tokensLoading={tokensLoading}
+							tokensImporting={tokensImporting}
+							transferCollectionId={transferCollectionId}
+							transferCollectionOptions={transferCollectionOptions}
 							sourceCollectionName={swapSourceCollectionName}
 							sourceOptions={SWAP_COLLECTIONS.map((collection) => ({
 								value: collection.sourceCollectionName,
@@ -194,6 +279,9 @@ export function App() {
 							targetCollectionName={swapTargetCollectionName}
 							onSourceCollectionChange={handleSwapSourceCollectionChange}
 							onSwap={handleSwap}
+							onTokensJsonChange={setTokensJson}
+							onImportTokens={handleImportTokens}
+							onTransferCollectionChange={handleTransferCollectionChange}
 						/>
 					)}
 

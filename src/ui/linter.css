@@ -211,3 +211,17 @@
 	color: var(--figma-color-text);
 	font: inherit;
 }
+
+.linter-swap-tokens-json {
+	width: 100%;
+	box-sizing: border-box;
+	resize: vertical;
+	font-family: var(--font-family-code, monospace);
+	font-size: 11px;
+	line-height: 1.4;
+	color: var(--figma-color-text);
+	background: var(--figma-color-bg);
+	border: 1px solid var(--figma-color-border);
+	border-radius: var(--radius-medium);
+	padding: 8px;
+}

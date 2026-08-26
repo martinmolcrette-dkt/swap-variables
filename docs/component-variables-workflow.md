@@ -12,7 +12,7 @@ flowchart TD
     D --> E[L'agent génère des collections temporaires en local]
     E --> F{Le designer vérifie le résultat}
     F -->|OK| G[Demander à l'agent d'appliquer les tokens locaux au composant]
-    G --> H[Copier les variables des collections temporaires dans une nouvelle branche du fichier Vitamin Play - Design tokens]
+    G --> H[Exporter le JSON de la collection temporaire, puis l'importer dans une nouvelle branche du fichier Vitamin Play - Design tokens]
     H --> I[Revue, merge et publish de la branche par le design system team]
     I --> J[Revenir sur le fichier/branche du composant, ouvrir Vitamin Variables companion, onglet Swap]
     J --> K[Sélectionner le composant et cliquer sur Swap]
@@ -41,9 +41,12 @@ Le designer vérifie que les tokens temporaires générés correspondent bien au
 Si la vérification est concluante, le designer demande à l'agent d'**appliquer les tokens locaux** au composant (rebind des variables du composant vers la collection temporaire locale).
 
 ### 6. Transfert vers le fichier Design Tokens
-Le designer copie/colle manuellement les variables des collections temporaires dans une **nouvelle branche** du fichier **"Vitamin Play - Design tokens"**.
+1. Dans le fichier du composant, ouvrir le plugin **Vitamin Variables companion**, onglet **Swap**.
+2. Dans **Transfer design tokens**, sélectionner la collection temporaire locale puis copier le JSON affiché.
+3. Ouvrir une **nouvelle branche** du fichier **"Vitamin Play - Design tokens"** et rouvrir le plugin.
+4. Dans **Transfer design tokens**, sélectionner la collection locale cible, coller le JSON puis cliquer sur **Add tokens to selected collection**.
 
-> Note : le transfert des variables vers la branche est manuel (copier/coller des variables), il n'est pas automatisé par le plugin.
+L'import ajoute uniquement les tokens absents : les tokens déjà présents dans la collection cible ne sont pas remplacés. Les alias vers des variables publiées sont conservés.
 
 ### 7. Revue et publication
 La branche est revue par l'équipe design system, puis mergée et **publiée** dans la librairie "Vitamin Play - Design tokens".

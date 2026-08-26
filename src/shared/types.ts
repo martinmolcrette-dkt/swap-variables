@@ -54,6 +54,11 @@ export type TempCollectionInfo = {
 	variableCount: number;
 };
 
+export type LocalVariableCollectionInfo = {
+	id: string;
+	name: string;
+};
+
 export type PromptState = {
 	createPrompt: string;
 	mapPrompt: string | null;
@@ -67,7 +72,14 @@ export type UiToMainMessage =
 	| { type: 'rescan' }
 	| { type: 'detach-all' }
 	| { type: 'get-prompt-state' }
-	| { type: 'swap-temp'; sourceCollectionName: string };
+	| { type: 'swap-temp'; sourceCollectionName: string }
+	| { type: 'get-local-variable-collections' }
+	| { type: 'get-swap-collection-tokens'; collectionId: string }
+	| {
+			type: 'import-swap-collection-tokens';
+			targetCollectionId: string;
+			tokensJson: string;
+	  };
 
 export type MainToUiMessage =
 	| { type: 'scan-result'; result: ScanResult }
@@ -81,4 +93,20 @@ export type MainToUiMessage =
 			skippedCount: number;
 			message: string;
 			errors: string[];
+	  }
+	| {
+			type: 'swap-collection-tokens';
+			success: boolean;
+			collectionId: string;
+			tokensJson: string;
+			message: string;
+	  }
+	| {
+			type: 'local-variable-collections';
+			collections: LocalVariableCollectionInfo[];
+	  }
+	| {
+			type: 'swap-collection-import-result';
+			success: boolean;
+			message: string;
 	  };

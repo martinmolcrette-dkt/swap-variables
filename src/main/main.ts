@@ -5,6 +5,11 @@ import { buildMcpPrompts } from './prompt-builder';
 import { focusNode, scanSelection } from './scan-variables';
 import { swapTempVariables } from './swap-temp-variables';
 import { getTempCollectionState } from './temp-collection';
+import {
+	exportCollectionTokens,
+	getLocalVariableCollections,
+	importCollectionTokens,
+} from './collection-tokens';
 
 function postToUi(message: MainToUiMessage) {
 	figma.ui.postMessage(message);
@@ -99,6 +104,61 @@ async function runSwapTemp(sourceCollectionName: string) {
 	}
 }
 
+async function runExportSwapCollectionTokens(collectionId: string) {
+	try {
+		const tokens = await exportCollectionTokens(collectionId);
+		const tokensJson = JSON.stringify(tokens, null, 2);
+
+		postToUi({
+			type: 'swap-collection-tokens',
+			success: true,
+			collectionId,
+			tokensJson,
+			message: `Exported ${tokens.variables.length} token${tokens.variables.length === 1 ? '' : 's'} from "${tokens.collection.name}".`,
+		});
+	} catch (error) {
+		const message =
+			error instanceof Error ? error.message : 'Design tokens export failed.';
+
+		postToUi({
+			type: 'swap-collection-tokens',
+			success: false,
+			collectionId,
+			tokensJson: '',
+			message,
+		});
+	}
+}
+
+async function runImportSwapCollectionTokens(
+	targetCollectionId: string,
+	tokensJson: string,
+) {
+	try {
+		const result = await importCollectionTokens(targetCollectionId, tokensJson);
+
+		postToUi({
+			type: 'swap-collection-import-result',
+			success: true,
+			message: result.message,
+		});
+	} catch (error) {
+		const message =
+			error instanceof Error ? error.message : 'Design tokens import failed.';
+
+		postToUi({
+			type: 'swap-collection-import-result',
+			success: false,
+			message,
+		});
+	}
+}
+
+async function runLocalVariableCollections() {
+	const collections = await getLocalVariableCollections();
+	postToUi({ type: 'local-variable-collections', collections });
+}
+
 async function refreshState() {
 	await runScan();
 	await runPromptState();
@@ -138,6 +198,24 @@ export default function () {
 
 		if (message.type === 'swap-temp') {
 			void runSwapTemp(message.sourceCollectionName);
+			return;
+		}
+
+		if (message.type === 'get-swap-collection-tokens') {
+			void runExportSwapCollectionTokens(message.collectionId);
+			return;
+		}
+
+		if (message.type === 'get-local-variable-collections') {
+			void runLocalVariableCollections();
+			return;
+		}
+
+		if (message.type === 'import-swap-collection-tokens') {
+			void runImportSwapCollectionTokens(
+				message.targetCollectionId,
+				message.tokensJson,
+			);
 		}
 	};
 
