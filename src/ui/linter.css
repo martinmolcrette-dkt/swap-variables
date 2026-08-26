@@ -9,9 +9,28 @@
 	display: flex;
 	flex-direction: column;
 	min-height: 100%;
+	overflow: hidden;
 }
 
 .plugin-content {
+	flex: 1;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.linter-panel {
+	min-height: 0;
+}
+
+.linter-panel--fill {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.linter-panel__content {
 	flex: 1;
 	min-height: 0;
 }
@@ -88,8 +107,63 @@
 }
 
 .linter-tabs {
-	max-height: 280px;
+	max-height: 380px;
 	overflow-y: auto;
+}
+
+.linter-tabs--fill {
+	max-height: none;
+	height: 100%;
+	overflow: hidden;
+}
+
+.linter-tabs--fill > div {
+	height: 100%;
+	min-height: 0;
+}
+
+.linter-list-scroll {
+	height: calc(100vh - 148px);
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	padding-right: 2px;
+}
+
+.variables-list-layout {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacer-1);
+}
+
+.variables-tabs {
+	display: flex;
+	gap: var(--spacer-1);
+	overflow-x: auto;
+	padding-bottom: var(--spacer-1);
+	border-bottom: 1px solid var(--figma-color-border);
+	flex: 0 0 auto;
+}
+
+.variables-tab {
+	border: 1px solid var(--figma-color-border);
+	border-radius: var(--radius-full);
+	padding: 4px 10px;
+	white-space: nowrap;
+	color: var(--figma-color-text-secondary);
+	background: var(--figma-color-bg);
+	cursor: pointer;
+}
+
+.variables-tab:hover {
+	color: var(--figma-color-text);
+	background: var(--figma-color-bg-hover);
+}
+
+.variables-tab--active {
+	color: var(--figma-color-text);
+	border-color: var(--figma-color-bg-brand);
+	background: var(--figma-color-bg-brand-tertiary);
+	font-weight: var(--font-weight-bold);
 }
 
 .linter-prompt textarea {
@@ -116,4 +190,24 @@
 
 .linter-swap-link a {
 	color: var(--figma-color-text-brand);
+}
+
+.linter-swap-note {
+	padding: var(--spacer-1) 0;
+}
+
+.linter-swap-select-label {
+	display: block;
+	font-weight: 600;
+	color: var(--figma-color-text-secondary);
+}
+
+.linter-swap-select {
+	width: 100%;
+	padding: 6px 8px;
+	border: 1px solid var(--figma-color-border);
+	border-radius: var(--radius-medium);
+	background: var(--figma-color-bg);
+	color: var(--figma-color-text);
+	font: inherit;
 }

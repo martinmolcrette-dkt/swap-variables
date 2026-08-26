@@ -10,8 +10,8 @@
 	"permissions": [
 		"teamlibrary"
 	],
-	"id": "com.decathlon.variable-linter",
-	"name": "Variable Linter",
+	"id": "com.decathlon.variables-companion",
+	"name": "Vitamin Variables companion",
 	"main": "src/main/main.ts",
 	"ui": "src/ui/ui.tsx",
 	"editorType": [

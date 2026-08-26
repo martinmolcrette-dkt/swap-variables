@@ -1,4 +1,4 @@
-import { TEMP_COLLECTION_NAME } from './config';
+import { DEFAULT_SWAP_SOURCE_COLLECTION_NAME } from '../shared/constants';
 
 export type TempCollectionState = {
 	exists: boolean;
@@ -8,7 +8,9 @@ export type TempCollectionState = {
 
 export async function getTempCollectionState(): Promise<TempCollectionState> {
 	const collections = await figma.variables.getLocalVariableCollectionsAsync();
-	const tempCollection = collections.find((collection) => collection.name === TEMP_COLLECTION_NAME);
+	const tempCollection = collections.find(
+		(collection) => collection.name === DEFAULT_SWAP_SOURCE_COLLECTION_NAME,
+	);
 
 	if (!tempCollection) {
 		return { exists: false, variableCount: 0 };
@@ -28,7 +30,9 @@ export type TempVariableInfo = {
 };
 
 export async function getTempCollectionVariables(): Promise<TempVariableInfo[]> {
-	const tempCollection = await findLocalCollectionByName(TEMP_COLLECTION_NAME);
+	const tempCollection = await findLocalCollectionByName(
+		DEFAULT_SWAP_SOURCE_COLLECTION_NAME,
+	);
 
 	if (!tempCollection) {
 		return [];

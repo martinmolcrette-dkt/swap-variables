@@ -1,7 +1,6 @@
 import {
 	REFERENCE_COLLECTION_NAME,
 	REFERENCE_TOKENS_FILE_URL,
-	TEMP_COLLECTION_NAME,
 	TOKEN_GRAMMAR_PREFIX,
 } from './config';
 import { getCurrentFileUrl } from './figma-url';
@@ -43,13 +42,13 @@ export function buildCreateMcpPrompt(): { prompt: string; hasFileKey: boolean } 
 	const { fileSection, hasFileKey } = buildFileSection();
 	const componentList = buildComponentList();
 
-	const prompt = `Using Figma MCP, create a "${TEMP_COLLECTION_NAME}" collection in this file:
+	const prompt = `/token-grammar-figma, create a temp collection in this file:
 ${fileSection}
 
 In this collection, create component tokens for the selected components:
 ${componentList}
 
-Follow the token grammar of "${REFERENCE_TOKENS_FILE_URL}" in the "${REFERENCE_COLLECTION_NAME}" collection (${TOKEN_GRAMMAR_PREFIX}/...).`;
+Follow the token grammar`;
 
 	return { prompt, hasFileKey };
 }
@@ -70,15 +69,15 @@ export async function buildMapTokensMcpPrompt(): Promise<string | null> {
 	return `Using Figma MCP, in this file:
 ${fileSection}
 
-Map the variables from the "${TEMP_COLLECTION_NAME}" collection to the selected components by binding each token to the matching properties (fills, strokes, spacing, sizing, radius, typography, etc.):
+Map the variables from the temp collection to the selected components by binding each token to the matching properties (fills, strokes, spacing, sizing, radius, typography, etc.):
 
 Selected components:
 ${componentList}
 
-Available "${TEMP_COLLECTION_NAME}" tokens:
+Available "temp" tokens:
 ${variableList}
 
-For each component, inspect its layer properties and bind the corresponding "${TEMP_COLLECTION_NAME}" variable. Match tokens using the "${TOKEN_GRAMMAR_PREFIX}/..." naming convention derived from the component name.`;
+For each component, inspect its layer properties and bind the corresponding "temp" variable. Match tokens using the "${TOKEN_GRAMMAR_PREFIX}/..." naming convention derived from the component name.`;
 }
 
 export async function buildMcpPrompts(): Promise<{

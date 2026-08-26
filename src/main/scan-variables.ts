@@ -2,6 +2,7 @@ import type {
 	LintIssue,
 	LintOccurrence,
 	ScanResult,
+	SelectionVariable,
 	VariableCategory,
 	ViolationType,
 } from '../shared/types';
@@ -140,6 +141,7 @@ export async function scanSelection(): Promise<ScanResult> {
 	const teamLibraryIndex = await buildTeamLibraryIndex();
 
 	const issueMap = new Map<string, LintIssue>();
+	const selectionVariableMap = new Map<string, SelectionVariable>();
 	const variableCache = new Map<string, Variable | null>();
 
 	for (const node of nodes) {
@@ -157,21 +159,40 @@ export async function scanSelection(): Promise<ScanResult> {
 
 			const violation = getViolationType(variable, teamLibraryIndex.allowedKeys);
 
-			if (!violation) {
-				continue;
-			}
-
 			const source = teamLibraryIndex.variableSources.get(variable.key);
 			const collection = await figma.variables.getVariableCollectionByIdAsync(
 				variable.variableCollectionId,
 			);
-			const issueKey = `${variable.id}:${binding.field}:${violation}`;
 			const occurrence: LintOccurrence = {
 				nodeId: node.id,
 				nodeName: node.name,
 				property: binding.field,
 				propertyLabel: getPropertyLabel(binding.field, binding.index),
 			};
+
+			const existingSelectionVariable = selectionVariableMap.get(variable.id);
+
+			if (existingSelectionVariable) {
+				existingSelectionVariable.occurrences.push(occurrence);
+			} else {
+				selectionVariableMap.set(variable.id, {
+					id: variable.id,
+					variableId: variable.id,
+					variableName: variable.name,
+					variableType: variable.resolvedType,
+					category: getCategory(binding.field, variable.resolvedType),
+					isRemote: variable.remote,
+					libraryName: source?.libraryName,
+					collectionName: source?.collectionName ?? collection?.name,
+					occurrences: [occurrence],
+				});
+			}
+
+			if (!violation) {
+				continue;
+			}
+
+			const issueKey = `${variable.id}:${binding.field}:${violation}`;
 
 			const existing = issueMap.get(issueKey);
 
@@ -206,8 +227,21 @@ export async function scanSelection(): Promise<ScanResult> {
 		return a.variableName.localeCompare(b.variableName);
 	});
 
+	const selectionVariables = Array.from(selectionVariableMap.values()).sort((a, b) => {
+		const categoryOrder = ['color', 'spacing', 'sizing', 'radius', 'typography', 'other'];
+		const categoryDiff =
+			categoryOrder.indexOf(a.category) - categoryOrder.indexOf(b.category);
+
+		if (categoryDiff !== 0) {
+			return categoryDiff;
+		}
+
+		return a.variableName.localeCompare(b.variableName);
+	});
+
 	return {
 		issues,
+		selectionVariables,
 		teamLibraries: teamLibraryIndex.libraryNames,
 		selectionCount: selection.length,
 		scannedNodeCount: nodes.length,

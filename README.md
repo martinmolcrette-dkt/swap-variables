@@ -1,4 +1,4 @@
-# Swap Variables
+# Vitamin Variables companion
 
 ## Quickstart
 

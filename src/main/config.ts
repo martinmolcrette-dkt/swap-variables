@@ -16,8 +16,6 @@ export const ALLOWED_LIBRARY_NAMES = [
 	'Vitamin Play - Wonder Icons',
 ] as const;
 
-export const TEMP_COLLECTION_NAME = '_temp';
-
 export const REFERENCE_TOKENS_FILE_URL =
 	'https://www.figma.com/design/UO22GM2qa5xsi9B8RB6PR0/Vitamin-Play---Design-Tokens?m=auto';
 

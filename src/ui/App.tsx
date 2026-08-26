@@ -1,8 +1,10 @@
 import { Container, VerticalSpace } from '@create-figma-plugin/ui';
-import { h } from 'preact';
 import { useCallback, useEffect, useState } from 'preact/hooks';
 import {
-	TARGET_COLLECTION_NAME,
+	DEFAULT_SWAP_SOURCE_COLLECTION_NAME,
+	getSwapTargetCollectionName,
+	type SwapCollectionSourceName,
+	SWAP_COLLECTIONS,
 	TARGET_TOKENS_FILE_URL,
 } from '../shared/constants';
 import type {
@@ -14,13 +16,15 @@ import type {
 import { LintTab } from './tabs/LintTab';
 import { PromptTab } from './tabs/PromptTab';
 import { SwapTab } from './tabs/SwapTab';
+import { VariablesListTab } from './tabs/VariablesListTab';
 
-type MainTab = 'lint' | 'prompt' | 'swap';
+type MainTab = 'lint' | 'variables-list' | 'prompt' | 'swap';
 
 const MAIN_TABS: Array<{ value: MainTab; label: string }> = [
 	{ value: 'lint', label: 'Lint' },
-	{ value: 'prompt', label: 'MCP' },
+	{ value: 'prompt', label: 'Agent' },
 	{ value: 'swap', label: 'Swap' },
+	{ value: 'variables-list', label: 'Variables list' },
 ];
 
 function postToMain(message: UiToMainMessage) {
@@ -39,6 +43,16 @@ export function App() {
 	const [swapMessage, setSwapMessage] = useState<string | null>(null);
 	const [swapSuccess, setSwapSuccess] = useState<boolean | null>(null);
 	const [swapErrors, setSwapErrors] = useState<string[]>([]);
+	const [swapSourceCollectionName, setSwapSourceCollectionName] = useState(
+		DEFAULT_SWAP_SOURCE_COLLECTION_NAME,
+	);
+	const handleSwapSourceCollectionChange = useCallback(
+		(value: SwapCollectionSourceName) => {
+			setSwapSourceCollectionName(value);
+		},
+		[],
+	);
+
 
 	useEffect(() => {
 		const handleMessage = (event: MessageEvent) => {
@@ -111,8 +125,15 @@ export function App() {
 		setSwapMessage(null);
 		setSwapSuccess(null);
 		setSwapErrors([]);
-		postToMain({ type: 'swap-temp' });
-	}, []);
+		postToMain({
+			type: 'swap-temp',
+			sourceCollectionName: swapSourceCollectionName,
+		});
+	}, [swapSourceCollectionName]);
+
+	const swapTargetCollectionName = getSwapTargetCollectionName(
+		swapSourceCollectionName,
+	);
 
 	return (
 		<Container space="medium">
@@ -149,14 +170,29 @@ export function App() {
 						<PromptTab promptState={promptState} loading={loading} />
 					)}
 
+					{activeMainTab === 'variables-list' && (
+						<VariablesListTab
+							result={result}
+							error={error}
+							loading={loading}
+							onRescan={handleRescan}
+						/>
+					)}
+
 					{activeMainTab === 'swap' && (
 						<SwapTab
 							swapping={swapping}
 							swapMessage={swapMessage}
 							swapSuccess={swapSuccess}
 							swapErrors={swapErrors}
+							sourceCollectionName={swapSourceCollectionName}
+							sourceOptions={SWAP_COLLECTIONS.map((collection) => ({
+								value: collection.sourceCollectionName,
+								label: `${collection.sourceCollectionName} → ${collection.targetCollectionName}`,
+							}))}
 							tokensFileUrl={TARGET_TOKENS_FILE_URL}
-							targetCollectionName={TARGET_COLLECTION_NAME}
+							targetCollectionName={swapTargetCollectionName}
+							onSourceCollectionChange={handleSwapSourceCollectionChange}
 							onSwap={handleSwap}
 						/>
 					)}

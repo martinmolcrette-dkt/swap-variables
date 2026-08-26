@@ -67,10 +67,6 @@ function PromptBlock({
 }
 
 export function PromptTab({ promptState, loading }: PromptTabProps) {
-	const tempStatus = promptState?.tempCollection.exists
-		? `Collection _temp detected (${promptState.tempCollection.variableCount} variable${promptState.tempCollection.variableCount === 1 ? '' : 's'}).`
-		: 'Collection _temp not found in this file.';
-
 	return (
 		<Stack space="small">
 			{loading && <Muted>Updating prompts…</Muted>}
@@ -84,7 +80,7 @@ export function PromptTab({ promptState, loading }: PromptTabProps) {
 
 			<PromptBlock
 				title="1. Create tokens"
-				description="Copy this prompt and run it with Figma MCP to create component tokens in _temp."
+				description="Copy this prompt and run it with Figma Agent to create component tokens in [temp] collection."
 				value={promptState?.createPrompt ?? ''}
 				copyLabel="Copy create prompt"
 			/>
@@ -94,16 +90,13 @@ export function PromptTab({ promptState, loading }: PromptTabProps) {
 					<VerticalSpace space="small" />
 					<PromptBlock
 						title="2. Map tokens to components"
-						description="Copy this prompt and run it with Figma MCP to bind _temp variables to the selected components."
+						description="Copy this prompt and run it with Figma Agent to bind [temp] variables to the selected components. First call /token-grammar-figma skill"
 						value={promptState.mapPrompt}
 						copyLabel="Copy map prompt"
 					/>
 				</>
 			)}
 
-			<Muted class={promptState?.tempCollection.exists ? 'linter-status--ok' : 'linter-status--warn'}>
-				{tempStatus}
-			</Muted>
 		</Stack>
 	);
 }

@@ -29,8 +29,21 @@ export type LintIssue = {
 	occurrences: LintOccurrence[];
 };
 
+export type SelectionVariable = {
+	id: string;
+	variableId: string;
+	variableName: string;
+	variableType: VariableResolvedDataType;
+	category: VariableCategory;
+	isRemote: boolean;
+	libraryName?: string;
+	collectionName?: string;
+	occurrences: LintOccurrence[];
+};
+
 export type ScanResult = {
 	issues: LintIssue[];
+	selectionVariables: SelectionVariable[];
 	teamLibraries: string[];
 	selectionCount: number;
 	scannedNodeCount: number;
@@ -54,7 +67,7 @@ export type UiToMainMessage =
 	| { type: 'rescan' }
 	| { type: 'detach-all' }
 	| { type: 'get-prompt-state' }
-	| { type: 'swap-temp' };
+	| { type: 'swap-temp'; sourceCollectionName: string };
 
 export type MainToUiMessage =
 	| { type: 'scan-result'; result: ScanResult }

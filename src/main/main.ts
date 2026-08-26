@@ -1,4 +1,5 @@
 import type { MainToUiMessage, UiToMainMessage } from '../shared/types';
+import { getSwapTargetCollectionName } from '../shared/constants';
 import { detachNonTeamVariables } from './detach-variables';
 import { buildMcpPrompts } from './prompt-builder';
 import { focusNode, scanSelection } from './scan-variables';
@@ -55,11 +56,16 @@ async function runDetachAll() {
 	}
 }
 
-async function runSwapTemp() {
-	figma.notify('Swapping _temp variables…', { timeout: 2_000 });
+async function runSwapTemp(sourceCollectionName: string) {
+	const targetCollectionName = getSwapTargetCollectionName(sourceCollectionName);
+
+	figma.notify(`Swapping ${sourceCollectionName} variables…`, { timeout: 2_000 });
 
 	try {
-		const result = await swapTempVariables();
+		const result = await swapTempVariables(
+			sourceCollectionName,
+			targetCollectionName,
+		);
 
 		postToUi({
 			type: 'swap-result',
@@ -100,7 +106,7 @@ async function refreshState() {
 
 export default function () {
 	figma.showUI(__html__, {
-		width: 360,
+		width: 480,
 		height: 580,
 		themeColors: true,
 	});
@@ -131,7 +137,7 @@ export default function () {
 		}
 
 		if (message.type === 'swap-temp') {
-			void runSwapTemp();
+			void runSwapTemp(message.sourceCollectionName);
 		}
 	};
 

@@ -1,9 +1,5 @@
 import { bindBinding } from './bind-variables';
-import {
-	TARGET_COLLECTION_NAME,
-	TARGET_LIBRARY_NAME,
-	TEMP_COLLECTION_NAME,
-} from './config';
+import { TARGET_LIBRARY_NAME } from './config';
 import { findLocalCollectionByName } from './temp-collection';
 import { collectDescendants, extractBindings } from './variable-bindings';
 
@@ -20,14 +16,16 @@ type TargetVariableIndex = {
 	libraryKeyByName: Map<string, string>;
 };
 
-async function getTempVariableIds(): Promise<Set<string>> {
-	const tempCollection = await findLocalCollectionByName(TEMP_COLLECTION_NAME);
+async function getSourceVariableIds(
+	sourceCollectionName: string,
+): Promise<Set<string>> {
+	const sourceCollection = await findLocalCollectionByName(sourceCollectionName);
 
-	if (!tempCollection) {
+	if (!sourceCollection) {
 		return new Set();
 	}
 
-	return new Set(tempCollection.variableIds);
+	return new Set(sourceCollection.variableIds);
 }
 
 async function findVariableByKey(key: string): Promise<Variable | null> {
@@ -50,11 +48,13 @@ async function findVariableByKey(key: string): Promise<Variable | null> {
 	return null;
 }
 
-async function buildTargetVariableIndex(): Promise<TargetVariableIndex> {
+async function buildTargetVariableIndex(
+	targetCollectionName: string,
+): Promise<TargetVariableIndex> {
 	const localByName = new Map<string, Variable>();
 	const libraryKeyByName = new Map<string, string>();
 
-	const localCollection = await findLocalCollectionByName(TARGET_COLLECTION_NAME);
+	const localCollection = await findLocalCollectionByName(targetCollectionName);
 
 	if (localCollection) {
 		for (const variableId of localCollection.variableIds) {
@@ -71,7 +71,7 @@ async function buildTargetVariableIndex(): Promise<TargetVariableIndex> {
 
 	const targetLibraryCollection = libraryCollections.find(
 		(collection) =>
-			collection.name === TARGET_COLLECTION_NAME &&
+			collection.name === targetCollectionName &&
 			collection.libraryName === TARGET_LIBRARY_NAME,
 	);
 
@@ -119,7 +119,10 @@ async function resolveTargetVariable(
 	return importedVariable;
 }
 
-export async function swapTempVariables(): Promise<SwapTempResult> {
+export async function swapTempVariables(
+	sourceCollectionName: string,
+	targetCollectionName: string,
+): Promise<SwapTempResult> {
 	const selection = figma.currentPage.selection;
 
 	if (selection.length === 0) {
@@ -127,35 +130,35 @@ export async function swapTempVariables(): Promise<SwapTempResult> {
 			success: false,
 			swappedCount: 0,
 			skippedCount: 0,
-			message: 'Select components to swap their _temp variable bindings.',
+			message: 'Select components to swap their variable bindings.',
 			errors: [],
 		};
 	}
 
-	const tempVariableIds = await getTempVariableIds();
+	const tempVariableIds = await getSourceVariableIds(sourceCollectionName);
 
 	if (tempVariableIds.size === 0) {
-		const tempCollection = await findLocalCollectionByName(TEMP_COLLECTION_NAME);
+		const sourceCollection = await findLocalCollectionByName(sourceCollectionName);
 
 		return {
 			success: false,
 			swappedCount: 0,
 			skippedCount: 0,
-			message: tempCollection
-				? `Collection "${TEMP_COLLECTION_NAME}" has no variables to swap.`
-				: `Collection "${TEMP_COLLECTION_NAME}" was not found in this file.`,
+			message: sourceCollection
+				? `Collection "${sourceCollectionName}" has no variables to swap.`
+				: `Collection "${sourceCollectionName}" was not found in this file.`,
 			errors: [],
 		};
 	}
 
-	const targetIndex = await buildTargetVariableIndex();
+	const targetIndex = await buildTargetVariableIndex(targetCollectionName);
 
 	if (targetIndex.localByName.size === 0 && targetIndex.libraryKeyByName.size === 0) {
 		return {
 			success: false,
 			swappedCount: 0,
 			skippedCount: 0,
-			message: `No variables found in "${TARGET_COLLECTION_NAME}" from "${TARGET_LIBRARY_NAME}". Enable the Design Tokens library in this file.`,
+			message: `No variables found in "${targetCollectionName}" from "${TARGET_LIBRARY_NAME}". Enable the Design Tokens library in this file.`,
 			errors: [],
 		};
 	}
@@ -196,7 +199,7 @@ export async function swapTempVariables(): Promise<SwapTempResult> {
 			if (!targetVariable) {
 				skippedCount += 1;
 				errors.push(
-					`No "${TARGET_COLLECTION_NAME}" variable named "${sourceVariable.name}" for ${node.name}.`,
+					`No "${targetCollectionName}" variable named "${sourceVariable.name}" for ${node.name}.`,
 				);
 				continue;
 			}
@@ -216,13 +219,13 @@ export async function swapTempVariables(): Promise<SwapTempResult> {
 					variable: sourceVariable.name,
 					from: {
 						id: sourceVariable.id,
-						collection: TEMP_COLLECTION_NAME,
+						collection: sourceCollectionName,
 						type: sourceVariable.resolvedType,
 					},
 					to: {
 						id: targetVariable.id,
 						key: targetVariable.key,
-						collection: TARGET_COLLECTION_NAME,
+						collection: targetCollectionName,
 						type: targetVariable.resolvedType,
 						remote: targetVariable.remote,
 					},
@@ -241,8 +244,8 @@ export async function swapTempVariables(): Promise<SwapTempResult> {
 
 	const success = swappedCount > 0;
 	const message = success
-		? `Swapped ${swappedCount} binding${swappedCount === 1 ? '' : 's'} from "${TEMP_COLLECTION_NAME}" to "${TARGET_COLLECTION_NAME}".${skippedCount > 0 ? ` Skipped ${skippedCount}.` : ''}`
-		: `No _temp bindings were swapped in the selection.${skippedCount > 0 ? ` Skipped ${skippedCount}.` : ''}`;
+		? `Swapped ${swappedCount} binding${swappedCount === 1 ? '' : 's'} from "${sourceCollectionName}" to "${targetCollectionName}".${skippedCount > 0 ? ` Skipped ${skippedCount}.` : ''}`
+		: `No bindings from "${sourceCollectionName}" were swapped in the selection.${skippedCount > 0 ? ` Skipped ${skippedCount}.` : ''}`;
 
 	console.log('[swap] done', { swappedCount, skippedCount, success, errors });
 
