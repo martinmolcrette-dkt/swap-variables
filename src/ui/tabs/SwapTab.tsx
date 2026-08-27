@@ -119,10 +119,6 @@ export function SwapTab({
 				{targetCollectionName} in the Design Tokens library.
 			</Muted>
 
-			<Muted class="linter-swap-note">
-				Transfer collection to branch is now manual: copy and paste variables first,
-				then run swap.
-			</Muted>
 
 			<label class="linter-swap-select-label" for="swap-source-collection">
 				Source collection
