@@ -5,17 +5,38 @@ type SerializedColor = {
 	a: number;
 };
 
+type SerializedEasing = {
+	type: 'CUSTOM_CUBIC_BEZIER';
+	easingFunctionCubicBezier: {
+		x1: number;
+		y1: number;
+		x2: number;
+		y2: number;
+	};
+};
+
 type SerializedAlias = {
 	type: 'VARIABLE_ALIAS';
 	name: string;
 	key?: string;
 };
 
-type SerializedValue = boolean | number | string | SerializedColor | SerializedAlias;
+type SerializedValue =
+	| boolean
+	| number
+	| string
+	| SerializedColor
+	| SerializedEasing
+	| SerializedAlias;
+
+type TransferVariableResolvedDataType =
+	| VariableResolvedDataType
+	| 'TIMING'
+	| 'EASING';
 
 type SerializedVariable = {
 	name: string;
-	resolvedType: VariableResolvedDataType;
+	resolvedType: TransferVariableResolvedDataType;
 	valuesByMode: Record<string, SerializedValue>;
 };
 
@@ -76,19 +97,38 @@ function isAlias(value: unknown): value is SerializedAlias {
 	);
 }
 
+function isEasing(value: unknown): value is SerializedEasing {
+	if (!value || typeof value !== 'object') {
+		return false;
+	}
+
+	const easing = value as Partial<SerializedEasing>;
+	const cubicBezier = easing.easingFunctionCubicBezier;
+
+	return (
+		easing.type === 'CUSTOM_CUBIC_BEZIER' &&
+		!!cubicBezier &&
+		typeof cubicBezier.x1 === 'number' &&
+		typeof cubicBezier.y1 === 'number' &&
+		typeof cubicBezier.x2 === 'number' &&
+		typeof cubicBezier.y2 === 'number'
+	);
+}
+
 function isSerializedValue(value: unknown): value is SerializedValue {
 	return (
 		typeof value === 'boolean' ||
 		typeof value === 'number' ||
 		typeof value === 'string' ||
 		isColor(value) ||
+		isEasing(value) ||
 		isAlias(value)
 	);
 }
 
 function isValueCompatibleWithType(
 	value: SerializedValue,
-	resolvedType: VariableResolvedDataType,
+	resolvedType: TransferVariableResolvedDataType,
 ): boolean {
 	if (isAlias(value)) {
 		return true;
@@ -103,15 +143,23 @@ function isValueCompatibleWithType(
 			return typeof value === 'number';
 		case 'STRING':
 			return typeof value === 'string';
+		case 'TIMING':
+			return typeof value === 'number';
+		case 'EASING':
+			return isEasing(value);
 	}
 }
 
-function isResolvedType(value: unknown): value is VariableResolvedDataType {
+function isResolvedType(
+	value: unknown,
+): value is TransferVariableResolvedDataType {
 	return (
 		value === 'BOOLEAN' ||
 		value === 'COLOR' ||
 		value === 'FLOAT' ||
-		value === 'STRING'
+		value === 'STRING' ||
+		value === 'TIMING' ||
+		value === 'EASING'
 	);
 }
 
@@ -317,7 +365,7 @@ export async function importCollectionTokens(
 		const variable = figma.variables.createVariable(
 			token.name,
 			collection,
-			token.resolvedType,
+			token.resolvedType as VariableResolvedDataType,
 		);
 		variableByName.set(variable.name, variable);
 	}
@@ -360,7 +408,7 @@ export async function importCollectionTokens(
 				continue;
 			}
 
-			variable.setValueForMode(modeId, value);
+			variable.setValueForMode(modeId, value as VariableValue);
 		}
 	}
 
