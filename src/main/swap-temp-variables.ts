@@ -68,7 +68,6 @@ async function buildTargetVariableIndex(
 
 	const libraryCollections =
 		await figma.teamLibrary.getAvailableLibraryVariableCollectionsAsync();
-
 	const targetLibraryCollection = libraryCollections.find(
 		(collection) =>
 			collection.name === targetCollectionName &&
