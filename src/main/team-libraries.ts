@@ -1,4 +1,8 @@
-import { ALLOWED_LIBRARY_NAMES, ALLOWED_TEXT_STYLE_KEYS } from './config';
+import {
+	ALLOWED_LIBRARY_NAMES,
+	ALLOWED_TEXT_STYLE_KEYS,
+	FOUNDATION_LIBRARY_NAME,
+} from './config';
 
 export type TeamLibraryIndex = {
 	allowedKeys: Set<string>;
@@ -6,6 +10,17 @@ export type TeamLibraryIndex = {
 	libraryNames: string[];
 	variableSources: Map<string, { libraryName: string; collectionName: string }>;
 };
+
+export function isFoundationVariable(
+	variable: Variable,
+	teamLibraryIndex: TeamLibraryIndex,
+): boolean {
+	return (
+		variable.remote &&
+		teamLibraryIndex.variableSources.get(variable.key)?.libraryName ===
+			FOUNDATION_LIBRARY_NAME
+	);
+}
 
 export async function buildTeamLibraryIndex(): Promise<TeamLibraryIndex> {
 	const collections =

@@ -7,11 +7,13 @@
  */
 export const TEAM_ID = '1252649412192496862';
 
+export const FOUNDATION_LIBRARY_NAME = 'Vitamin Play - Foundations';
+
 export const ALLOWED_LIBRARY_NAMES = [
 	'Vitamin Play - Web UI kit',
 	'Vitamin Play - Wonder Assets',
 	'Vitamin Play - Design Tokens',
-	'Vitamin Play - Foundations',
+	FOUNDATION_LIBRARY_NAME,
 	'Vitamin Play - Helper Components',
 	'Vitamin Play - Wonder Icons',
 ] as const;

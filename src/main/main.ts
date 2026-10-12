@@ -1,6 +1,6 @@
 import type { MainToUiMessage, UiToMainMessage } from '../shared/types';
 import { getSwapTargetCollectionName } from '../shared/constants';
-import { detachNonTeamVariables } from './detach-variables';
+import { detachFoundationVariables } from './detach-variables';
 import { buildMcpPrompts } from './prompt-builder';
 import { focusNode, scanSelection } from './scan-variables';
 import { swapTempVariables } from './swap-temp-variables';
@@ -46,11 +46,10 @@ async function runPromptState() {
 
 async function runDetachAll() {
 	try {
-		const result = await detachNonTeamVariables();
+		const result = await detachFoundationVariables();
 		postToUi({
 			type: 'detach-result',
 			detachedCount: result.detachedCount,
-			detachedStyleCount: result.detachedStyleCount,
 			nodeCount: result.nodeCount,
 		});
 		await runScan();

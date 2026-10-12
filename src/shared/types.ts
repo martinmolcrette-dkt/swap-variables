@@ -8,7 +8,7 @@ export type VariableCategory =
 	| 'typography'
 	| 'other';
 
-export type ViolationType = 'local' | 'foreign';
+export type ViolationType = 'foundation';
 
 export type LintOccurrence = {
 	nodeId: string;
@@ -84,7 +84,7 @@ export type UiToMainMessage =
 export type MainToUiMessage =
 	| { type: 'scan-result'; result: ScanResult }
 	| { type: 'scan-error'; message: string }
-	| { type: 'detach-result'; detachedCount: number; detachedStyleCount: number; nodeCount: number }
+	| { type: 'detach-result'; detachedCount: number; nodeCount: number }
 	| { type: 'prompt-state'; state: PromptState }
 	| {
 			type: 'swap-result';

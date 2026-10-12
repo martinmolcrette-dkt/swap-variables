@@ -39,8 +39,7 @@ const CATEGORY_LABELS: Record<VariableCategory, string> = {
 };
 
 const VIOLATION_LABELS = {
-	local: 'Local variable',
-	foreign: 'External library',
+	foundation: 'Vitamin Play - Foundations',
 } as const;
 
 function postToMain(message: UiToMainMessage) {
@@ -186,7 +185,7 @@ export function LintTab({
 			<Stack space="extraSmall">
 				<div class="linter-header">
 					<Text>
-						<strong>Non-team variables</strong>
+						<strong>Vitamin Play - Foundations</strong>
 					</Text>
 					<IconButton onClick={onRescan}>
 						<IconRefresh16 />
@@ -221,7 +220,9 @@ export function LintTab({
 			)}
 
 			{!loading && !error && result && issueCount === 0 && result.selectionCount > 0 && (
-				<Banner variant="success">No non-team variables found in the selection.</Banner>
+				<Banner variant="success">
+					No Vitamin Play - Foundations variables found in the selection.
+				</Banner>
 			)}
 
 			{detachMessage && (
@@ -247,7 +248,7 @@ export function LintTab({
 					</div>
 					<VerticalSpace space="small" />
 					<Button fullWidth secondary disabled={!canDetach} onClick={onDetachAll}>
-						{detaching ? 'Detaching…' : 'Detach all'}
+						{detaching ? 'Detaching…' : 'Detach Foundation variables'}
 					</Button>
 				</Stack>
 			)}

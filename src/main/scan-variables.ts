@@ -6,7 +6,11 @@ import type {
 	VariableCategory,
 	ViolationType,
 } from '../shared/types';
-import { buildTeamLibraryIndex } from './team-libraries';
+import {
+	buildTeamLibraryIndex,
+	isFoundationVariable,
+	type TeamLibraryIndex,
+} from './team-libraries';
 import { collectDescendants, extractBindings } from './variable-bindings';
 
 const PROPERTY_LABELS: Record<string, string> = {
@@ -122,14 +126,10 @@ function getCategory(field: string, resolvedType: VariableResolvedDataType): Var
 
 function getViolationType(
 	variable: Variable,
-	allowedKeys: Set<string>,
+	teamLibraryIndex: TeamLibraryIndex,
 ): ViolationType | null {
-	if (!variable.remote) {
-		return 'local';
-	}
-
-	if (!allowedKeys.has(variable.key)) {
-		return 'foreign';
+	if (isFoundationVariable(variable, teamLibraryIndex)) {
+		return 'foundation';
 	}
 
 	return null;
@@ -157,7 +157,7 @@ export async function scanSelection(): Promise<ScanResult> {
 				continue;
 			}
 
-			const violation = getViolationType(variable, teamLibraryIndex.allowedKeys);
+			const violation = getViolationType(variable, teamLibraryIndex);
 
 			const source = teamLibraryIndex.variableSources.get(variable.key);
 			const collection = await figma.variables.getVariableCollectionByIdAsync(

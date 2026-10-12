@@ -94,12 +94,8 @@ export function App() {
 
 			if (message.type === 'detach-result') {
 				setDetaching(false);
-				const parts = [
-					`${message.detachedCount} variable binding${message.detachedCount === 1 ? '' : 's'}`,
-					`${message.detachedStyleCount} text style${message.detachedStyleCount === 1 ? '' : 's'}`,
-				];
 				setDetachMessage(
-					`Detached ${parts.join(' and ')} across ${message.nodeCount} node${message.nodeCount === 1 ? '' : 's'}.`,
+					`Detached ${message.detachedCount} Foundation variable binding${message.detachedCount === 1 ? '' : 's'} across ${message.nodeCount} node${message.nodeCount === 1 ? '' : 's'}.`,
 				);
 				return;
 			}

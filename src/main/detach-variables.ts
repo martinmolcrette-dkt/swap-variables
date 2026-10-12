@@ -1,5 +1,4 @@
-import { buildTeamLibraryIndex } from './team-libraries';
-import { detachNonTeamTextStyles } from './detach-text-styles';
+import { buildTeamLibraryIndex, isFoundationVariable } from './team-libraries';
 import {
 	collectDescendants,
 	extractBindings,
@@ -203,9 +202,8 @@ function unbindBinding(node: SceneNode, binding: Binding): boolean {
 	}
 }
 
-export async function detachNonTeamVariables(): Promise<{
+export async function detachFoundationVariables(): Promise<{
 	detachedCount: number;
-	detachedStyleCount: number;
 	nodeCount: number;
 }> {
 	const selection = figma.currentPage.selection;
@@ -229,10 +227,7 @@ export async function detachNonTeamVariables(): Promise<{
 				continue;
 			}
 
-			const isNonTeam =
-				!variable.remote || !teamLibraryIndex.allowedKeys.has(variable.key);
-
-			if (!isNonTeam) {
+			if (!isFoundationVariable(variable, teamLibraryIndex)) {
 				continue;
 			}
 
@@ -250,15 +245,8 @@ export async function detachNonTeamVariables(): Promise<{
 		}
 	}
 
-	const textStyleResult = await detachNonTeamTextStyles();
-
-	for (const nodeId of textStyleResult.affectedNodeIds) {
-		affectedNodes.add(nodeId);
-	}
-
 	return {
 		detachedCount,
-		detachedStyleCount: textStyleResult.detachedStyleCount,
 		nodeCount: affectedNodes.size,
 	};
 }
